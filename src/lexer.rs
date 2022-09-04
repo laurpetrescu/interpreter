@@ -1,14 +1,5 @@
 use crate::token;
 
-pub fn test_next_token(input_string: String) {
-    let mut lx = Lexer::new(input_string);
-    let mut tok = lx.next_token();
-    while tok.token_type != token::TokenType::Eof {
-        println!("{:?}", tok);
-        tok = lx.next_token();
-    }
-}
-
 lazy_static::lazy_static! {
 static ref KEYWORDS: std::collections::HashMap<&'static str, token::TokenType> = {
     let mut map = std::collections::HashMap::new();
@@ -19,6 +10,7 @@ static ref KEYWORDS: std::collections::HashMap<&'static str, token::TokenType> =
     map.insert(token::IF,       token::TokenType::If);
     map.insert(token::ELSE,     token::TokenType::Else);
     map.insert(token::RETURN,   token::TokenType::Return);
+    map.insert(token::WHILE,   token::TokenType::While);
     map.insert(token::KAKA,     token::TokenType::Kaka);
     map.insert(token::MACA,     token::TokenType::Maca);
     
@@ -60,7 +52,6 @@ pub struct Lexer {
     read_pos: usize,
     length: usize,
     ch: char
-
 }
 
 fn is_digit(ch: char) -> bool {
@@ -130,7 +121,7 @@ impl Lexer {
 
     fn read_identifier(&mut self) -> String {
         let pos = self.pos;
-        while is_valid_identifier(self.ch) {
+        while is_valid_identifier(self.peek_char()) {
             self.read_char();
         }
 
@@ -177,6 +168,7 @@ impl Lexer {
             token::GT => token::TokenType::Gt,
             
             token::COMMA => token::TokenType::Comma,
+            token::PERIOD => token::TokenType::Period,
             token::COLON => token::TokenType::Colon,
             token::SEMICOLON => token::TokenType::Semicolon,
             token::LPAREN => token::TokenType::Lparen,

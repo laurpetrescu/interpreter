@@ -6,6 +6,7 @@ pub const FALSE: &str 		= "false";
 pub const IF: &str	 		= "if";
 pub const ELSE: &str 		= "else";
 pub const RETURN: &str 		= "return";
+pub const WHILE: &str 		= "while";
 pub const KAKA: &str 		= "kaka";
 pub const MACA: &str 		= "maca";
  
@@ -23,6 +24,7 @@ pub const LT: char 			= '<';
 pub const GT: char	 		= '>';
 
 pub const COMMA: char 		= ',';
+pub const PERIOD: char 		= '.';
 pub const SEMICOLON: char	= ';';
 pub const COLON: char	    = ':';
 pub const LPAREN: char 		= '(';
@@ -55,6 +57,7 @@ pub enum TokenType {
     Gt,
     
     Comma,
+    Period,
     Semicolon,
     Colon,
     Lparen,
@@ -70,10 +73,11 @@ pub enum TokenType {
     False,
     If,
     Else,
-    Return
+    Return,
+    While,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Token {
     pub token_type: TokenType,
     pub literal: String
