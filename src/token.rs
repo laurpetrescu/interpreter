@@ -77,9 +77,17 @@ pub enum TokenType {
     While,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct Token {
     pub token_type: TokenType,
     pub literal: String
 }
 
+impl Token {
+    pub fn new() -> Self {
+        Token {
+            token_type: TokenType::Invalid,
+            literal: String::new()
+        }
+    }
+}
