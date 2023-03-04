@@ -1,12 +1,18 @@
 use crate::lexer;
 use crate::token;
 use crate::ast;
+use std::collections::HashMap;
 
-#[derive(Debug)]
+type PrefixParse = dyn Fn() -> Box<dyn ast::Node>;
+type InfixParse = dyn Fn(Box<dyn ast::Node>) -> Box<dyn ast::Node>;
+
 pub struct Parser {
     lexer: lexer::Lexer,
+    errors: Vec<String>,
     current_token: token::Token,
     peek_token: token::Token,
+    prefix_parsers: HashMap<token::TokenType, Box<PrefixParse>>,
+    infix_parsers: HashMap<token::TokenType, Box<InfixParse>>,
 }
 
 impl Parser {
@@ -15,8 +21,11 @@ impl Parser {
         let peek = lx.next_token();
         Self {
             lexer: lx,
+            errors: vec![],
             current_token: next,
-            peek_token: peek
+            peek_token: peek,
+            prefix_parsers: HashMap::new(),
+            infix_parsers: HashMap::new()
         }
     }
 
