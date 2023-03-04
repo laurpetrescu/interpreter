@@ -43,6 +43,16 @@ impl Identifier {
     }
 }
 
+impl Node for Identifier {
+    fn literal(&self) -> String {
+        self.token.literal.clone()
+    }
+
+    fn to_string(&self) -> String {
+        format!("{}", self.value)
+    }
+}
+
 pub struct Program {
     pub statements: Vec<Box<dyn Node>>
 }

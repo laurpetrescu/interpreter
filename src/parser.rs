@@ -3,8 +3,22 @@ use crate::token;
 use crate::ast;
 use std::collections::HashMap;
 
-type PrefixParse = dyn Fn() -> Box<dyn ast::Node>;
+type PrefixParse = fn(&token::Token) -> Box<dyn ast::Node>;
 type InfixParse = dyn Fn(Box<dyn ast::Node>) -> Box<dyn ast::Node>;
+
+enum Precedence {
+    Lowest,
+    Equal, // ==
+    LessGreater, // < or >
+    Sum, // +
+    Product, // *
+    Prefix, // -x or !x
+    Call, // func(x)
+}
+
+fn parse_identifier(token: &token::Token) -> Box<dyn ast::Node> {
+    Box::new(ast::Identifier{token: token.clone(), value: token.literal.clone()})
+}
 
 pub struct Parser {
     lexer: lexer::Lexer,
@@ -19,12 +33,16 @@ impl Parser {
     pub fn new(mut lx: lexer::Lexer) -> Self {
         let next = lx.next_token();
         let peek = lx.next_token();
+        let prefix_functions = HashMap::from([
+            (token::TokenType::Identifier, Box::new(parse_identifier as PrefixParse)),
+        ]);
+
         Self {
             lexer: lx,
             errors: vec![],
             current_token: next,
             peek_token: peek,
-            prefix_parsers: HashMap::new(),
+            prefix_parsers: prefix_functions,
             infix_parsers: HashMap::new()
         }
     }
@@ -49,6 +67,14 @@ impl Parser {
 
     fn current_token_is(&self, token: token::TokenType) -> bool {
         self.current_token.token_type == token
+    }
+
+    fn register_prefix(&mut self, token: token::TokenType, prefix_fn: Box<PrefixParse>) {
+        self.prefix_parsers.insert(token, prefix_fn);
+    }
+
+    fn register_infix(&mut self, token: token::TokenType, infix_fn: Box<InfixParse>) {
+        self.infix_parsers.insert(token, infix_fn);
     }
 
     pub fn parse_program(&mut self) -> Result<ast::Program, &'static str> {
@@ -112,5 +138,25 @@ impl Parser {
 
     fn parse_if(&mut self) -> Result<Box<dyn ast::Node>, &'static str> {
         Err("Invalid if statement")
+    }
+
+    fn parse_expression(&mut self, procedence: Precedence) -> Result<Box<dyn ast::Node>, &'static str> {
+        match self.prefix_parsers.get(&self.current_token.token_type) {
+            Some(prefix) => Ok(prefix(&self.current_token)),
+            None => Err("Invalid expressions")
+        }
+    }
+
+    fn parse_expression_statement(&mut self) -> Result<Box<dyn ast::Node>, &'static str> {
+        let mut stmt = Box::new(ast::ExpressionStatement::new(self.current_token.clone()));
+
+        self.next_token();
+        stmt.value = self.parse_expression(Precedence::Lowest).unwrap();
+
+        while !self.current_token_is(token::TokenType::Semicolon) {
+            self.next_token();
+        }
+
+        Ok(stmt)
     }
 }
