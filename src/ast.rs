@@ -189,3 +189,29 @@ impl Node for IntegerLiteral {
         format!("{}", self.token.literal)
     }
 }
+
+pub struct PrefixExpression {
+    pub token: token::Token,
+    pub operator: String,
+    pub right: Box<dyn Node>
+}
+
+impl PrefixExpression {
+    pub fn new(token: token::Token) -> Self {
+        Self {
+            token: token.clone(),
+            operator: String::new(),
+            right: Box::new(ExpressionStatement::new(token))
+        }
+    }
+}
+
+impl Node for PrefixExpression {
+    fn literal(&self) -> String {
+        self.token.literal.clone()
+    }
+
+    fn to_string(&self) -> String {
+        format!("({} {})", self.operator.clone(), self.right.to_string())
+    }
+}

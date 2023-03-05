@@ -47,6 +47,7 @@ impl Parser {
         let prefix_functions = HashMap::from([
             (token::TokenType::Identifier, Box::new(parse_identifier as PrefixParse)),
             (token::TokenType::Integer, Box::new(parse_integer_literal as PrefixParse)),
+            // (token::TokenType::Bang, Box::new(Parser::parse_prefix_expression)),
         ]);
 
         Self {
@@ -172,4 +173,16 @@ impl Parser {
         Ok(stmt)
     }
 
+    // fn parse_prefix_expression(&mut self, token: &token::Token) -> Result<Box<dyn ast::Node>, &'static str> {
+    //     let mut expression = Box::new(ast::PrefixExpression::new(token.clone()));
+        
+    //     self.next_token();
+    //     match self.parse_expression(Precedence::Prefix) {
+    //         Ok(exp) => {
+    //             expression.right = exp;
+    //             Ok(expression)
+    //         }
+    //         Err(err) => Err(err)
+    //     }
+    // }
 }
