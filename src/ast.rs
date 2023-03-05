@@ -164,3 +164,28 @@ impl Node for ExpressionStatement {
         format!("{}", self.value.to_string())
     }
 }
+
+
+pub struct IntegerLiteral {
+    pub token: token::Token,
+    pub value: i64
+}
+
+impl IntegerLiteral {
+    pub fn new() -> Self {
+        Self {
+            token: token::Token::new(),
+            value: 0
+        }
+    }
+}
+
+impl Node for IntegerLiteral {
+    fn literal(&self) -> String {
+        self.token.literal.clone()
+    }
+
+    fn to_string(&self) -> String {
+        format!("{}", self.token.literal)
+    }
+}

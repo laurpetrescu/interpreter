@@ -20,6 +20,17 @@ fn parse_identifier(token: &token::Token) -> Box<dyn ast::Node> {
     Box::new(ast::Identifier{token: token.clone(), value: token.literal.clone()})
 }
 
+fn parse_integer_literal(token: &token::Token) -> Box<dyn ast::Node> {
+    let mut literal = ast::IntegerLiteral::new();
+    match token.literal.parse::<i64>() {
+        Ok(val) => literal.value = val,
+        Err(_) => return Box::new(literal)
+    }
+
+    literal.token = token.clone();
+    Box::new(literal)
+}
+
 pub struct Parser {
     lexer: lexer::Lexer,
     errors: Vec<String>,
@@ -35,6 +46,7 @@ impl Parser {
         let peek = lx.next_token();
         let prefix_functions = HashMap::from([
             (token::TokenType::Identifier, Box::new(parse_identifier as PrefixParse)),
+            (token::TokenType::Integer, Box::new(parse_integer_literal as PrefixParse)),
         ]);
 
         Self {
@@ -140,7 +152,7 @@ impl Parser {
         Err("Invalid if statement")
     }
 
-    fn parse_expression(&mut self, procedence: Precedence) -> Result<Box<dyn ast::Node>, &'static str> {
+    fn parse_expression(&mut self, _procedence: Precedence) -> Result<Box<dyn ast::Node>, &'static str> {
         match self.prefix_parsers.get(&self.current_token.token_type) {
             Some(prefix) => Ok(prefix(&self.current_token)),
             None => Err("Invalid expressions")
@@ -159,4 +171,5 @@ impl Parser {
 
         Ok(stmt)
     }
+
 }
